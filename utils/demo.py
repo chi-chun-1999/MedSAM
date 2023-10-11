@@ -229,8 +229,8 @@ class BboxPromptDemo4web(BboxPromptDemo):
         # plt.imshow(seg)
         # plt.show()
     
-    def show(self, image_array, prompt_points):
-        self.x0, self.y0, self.x1, self.y1 = prompt_points[0,0], prompt_points[0,1], prompt_points[1,0], prompt_points[1,1]
+    def show(self, image_array, prompt_bbox):
+        self.x0, self.y0, self.x1, self.y1 = prompt_bbox[0,0], prompt_bbox[0,1], prompt_bbox[1,0], prompt_bbox[1,1]
         # self.set_image_path(image_path)
         self._set_image(image_array)
         self._show()
