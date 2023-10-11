@@ -11,6 +11,8 @@ from IPython.display import display
 from matplotlib import patches as patches
 from matplotlib import pyplot as plt
 from copy import deepcopy
+from imantics import Polygons, Mask
+
 
 def show_mask(mask, ax, random_color=False, alpha=0.95):
     if random_color:
@@ -198,8 +200,43 @@ class BboxPromptDemo:
         medsam_seg = (low_res_pred > 0.5).astype(np.uint8)
         return medsam_seg
 
-
-
+class BboxPromptDemo4web(BboxPromptDemo):
+    def __init__(self, model):
+        super().__init__(model)
+        self.image_path = None
+        self.image = None
+        self.image_embeddings = None
+        self.img_size = None
+        self.gt = None
+        self.currently_selecting = False
+        self.x0, self.y0, self.x1, self.y1 = 0., 0., 0., 0.
+        self.rect = None
+        self.fig, self.axes = None, None
+        self.segs = []
+    
+    def _show(self):
+        assert self.image is not None, "Please set image first."
+        x_min = min(self.x0, self.x1)
+        x_max = max(self.x0, self.x1)
+        y_min = min(self.y0, self.y1)
+        y_max = max(self.y0, self.y1)
+        bbox = np.array([x_min, y_min, x_max, y_max])
+        with torch.no_grad():
+            seg = self._infer(bbox)
+            torch.cuda.empty_cache()
+        self.segs.append(deepcopy(seg))
+        # print(seg.shape)
+        # plt.imshow(seg)
+        # plt.show()
+    
+    def show(self, image_path, prompt_points):
+        self.x0, self.y0, self.x1, self.y1 = prompt_points[0,0], prompt_points[0,1], prompt_points[1,0], prompt_points[1,1]
+        self.set_image_path(image_path)
+        self._show()
+        
+        return Mask(self.segs[0]).polygons().points
+        
+        
 class PointPromptDemo:
     def __init__(self, model, dataroot):
         self.model = model
