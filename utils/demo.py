@@ -235,7 +235,7 @@ class BboxPromptDemo4web(BboxPromptDemo):
         self._set_image(image_array)
         self._show()
         
-        return Mask(self.segs[0]).polygons().points
+        return Mask(self.segs[0])
         
         
 class PointPromptDemo:
